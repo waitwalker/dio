@@ -181,7 +181,7 @@ dio.options.connectTimeout = 5000; //5s
 dio.options.receiveTimeout = 3000;
 
 // 或者通过传递一个 `options`来创建dio实例
-BaseOptions options = BaseOptions(
+Options options = BaseOptions(
     baseUrl: "https://www.xx.com/api",
     connectTimeout: 5000,
     receiveTimeout: 3000,
@@ -340,29 +340,6 @@ dio.interceptors.add(InterceptorsWrapper(
 ));
 ```
 
-一个简单的自定义拦截器示例:
-
-```dart
-import 'package:dio/dio.dart';
-class CustomInterceptors extends InterceptorsWrapper {
-  @override
-  Future onRequest(RequestOptions options) {
-    print("REQUEST[${options?.method}] => PATH: ${options?.path}");
-    return super.onRequest(options);
-  }
-  @override
-  Future onResponse(Response response) {
-    print("RESPONSE[${response?.statusCode}] => PATH: ${response?.request?.path}");
-    return super.onResponse(response);
-  }
-  @override
-  Future onError(DioError err) {
-    print("ERROR[${err?.response?.statusCode}] => PATH: ${err?.request?.path}");
-    return super.onError(err);
-  }
-}
-```
-
 ### 完成和终止请求/响应
 
 在所有拦截器中，你都可以改变请求执行流， 如果你想完成请求/响应并返回自定义数据，你可以返回一个 `Response` 对象或返回 `dio.resolve(data)`的结果。 如果你想终止(触发一个错误，上层`catchError`会被调用)一个请求/响应，那么可以返回一个`DioError` 对象或返回 `dio.reject(errMsg)` 的结果.
@@ -399,7 +376,7 @@ dio.interceptors.add(InterceptorsWrapper(
 
 ```dart
 tokenDio = Dio(); //Create a instance to request the token.
-tokenDio.options = dio.options;
+tokenDio.options = dio;
 dio.interceptors.add(InterceptorsWrapper(
     onRequest:(Options options) async {
         // If no token, request token firstly and lock this interceptor
@@ -503,12 +480,11 @@ dio.interceptors.add(LogInterceptor(responseBody: false)); //开启请求日志
 
 ```dart
  {
-  /// Request info.
-  RequestOptions request;
-
-  /// Response info, it may be `null` if the request can't reach to
-  /// the http server, for example, occurring a dns error, network is not available.
+  /// 响应信息, 如果错误发生在在服务器返回数据之前，它为 `null`
   Response response;
+
+  /// 错误描述.
+  String message;
 
   /// 错误类型，见下文
   DioErrorType type;
@@ -522,13 +498,13 @@ dio.interceptors.add(LogInterceptor(responseBody: false)); //开启请求日志
 
 ```dart
 enum DioErrorType {
-  /// It occurs when url is opened timeout.
+  /// When opening  url timeout, it occurs.
   CONNECT_TIMEOUT,
 
-  /// It occurs when url is sent timeout.
-  SEND_TIMEOUT,
-
-  ///It occurs when receiving timeout.
+  ///  Whenever more than [receiveTimeout] (in milliseconds) passes between two events from response stream,
+  ///  [Dio] will throw the [DioError] with [DioErrorType.RECEIVE_TIMEOUT].
+  ///
+  ///  Note: This is not the receiving time limitation.
   RECEIVE_TIMEOUT,
 
   /// When the server response, but with a incorrect status, such as 404, 503...
@@ -536,7 +512,7 @@ enum DioErrorType {
 
   /// When the request is cancelled, dio will throw a error with this type.
   CANCEL,
-  
+
   /// Default error type, Some other Error. In this case, you can
   /// read the DioError.error if it is not null.
   DEFAULT
@@ -564,7 +540,7 @@ dio.post("/info",data:{"id":5},
 Dio支持发送 FormData, 请求数据将会以 `multipart/form-data`方式编码, FormData中可以一个或多个包含文件 .
 
 ```dart
-FormData formData = FormData.fromMap({
+FormData formData = FormData.from({
     "name": "wendux",
     "age": 25,
     "file": await MultipartFile.fromFile("./text.txt",filename: "upload.txt")

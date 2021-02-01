@@ -16,7 +16,7 @@ A powerful Http client for Dart, which supports Interceptors, Global configurati
 dependencies:
   dio: 3.x #latest version
 ```
-> In order to support Flutter Web, v3.x was heavily refactored, so v3.x is not compatible with v2.x See [the changelog](https://github.com/flutterchina/dio/blob/master/dio/CHANGELOG.md) for a detailed list of updates.
+> In order to support Flutter Web, v3.x was heavily refactored, so it was not compatible with version 3.x See [here](https://github.com/flutterchina/dio/blob/master/dio/CHANGELOG.md) for a detailed list of updates.
 
 ### Super simple to use
 
@@ -45,7 +45,6 @@ void getHttp() async {
 | [dio_flutter_transformer](https://github.com/flutterchina/dio_flutter_transformer) | [![Pub](https://img.shields.io/pub/v/dio_flutter_transformer.svg?style=flat-square)](https://pub.dartlang.org/packages/dio_flutter_transformer) | A Dio transformer especially for flutter, by which the json decoding will be in background with `compute` function. |
 | [dio_http_cache](https://github.com/hurshi/dio-http-cache)   | [![Pub](https://img.shields.io/pub/v/dio_http_cache.svg?style=flat-square)](https://pub.dartlang.org/packages/dio_http_cache) | A cache library for Dio, like [Rxcache](https://github.com/VictorAlbertos/RxCache) in Android. dio-http-cache uses [sqflite](https://github.com/tekartik/sqflite) as disk cache, and [LRU](https://github.com/google/quiver-dart) strategy as memory cache. |
 | [retrofit](https://github.com/trevorwang/retrofit.dart/)     | [![Pub](https://img.shields.io/pub/v/retrofit.svg?style=flat-square)](https://pub.dartlang.org/packages/retrofit) | retrofit.dart is an dio client generator using source_gen and inspired by Chopper and Retrofit. |
-| [dio_firebase_performance](https://github.com/eyeem/dio_firebase_performance)     | [![Pub](https://img.shields.io/pub/v/dio_firebase_performance.svg?style=flat-square)](https://pub.dartlang.org/packages/dio_firebase_performance) | A Dio Interceptor for reporting network metrics to Firebase |
 
 ### Related Projects
 
@@ -377,30 +376,6 @@ dio.interceptors.add(InterceptorsWrapper(
 
 ```
 
-Simple interceptor example:
-
-```dart
-import 'package:dio/dio.dart';
-class CustomInterceptors extends InterceptorsWrapper {
-  @override
-  Future onRequest(RequestOptions options) {
-    print("REQUEST[${options?.method}] => PATH: ${options?.path}");
-    return super.onRequest(options);
-  }
-  @override
-  Future onResponse(Response response) {
-    print("RESPONSE[${response?.statusCode}] => PATH: ${response?.request?.path}");
-    return super.onResponse(response);
-  }
-  @override
-  Future onError(DioError err) {
-    print("ERROR[${err?.response?.statusCode}] => PATH: ${err?.request?.path}");
-    return super.onError(err);
-  }
-}
-```
-
-
 ### Resolve and reject the request
 
 In all interceptors, you can interfere with their execution flow. If you want to resolve the request/response with some custom data，you can return a `Response` object or return `dio.resolve(data)`.  If you want to reject the request/response with a error message, you can return a `DioError` object or return `dio.reject(errMsg)` .
@@ -577,7 +552,7 @@ dio.post("/info", data:{"id":5},
 You can also send FormData with Dio, which will send data in the `multipart/form-data`, and it supports uploading files.
 
 ```dart
-FormData formData = FormData.fromMap({
+FormData formData = FormData.from({
     "name": "wendux",
     "age": 25,
     "file": await MultipartFile.fromFile("./text.txt",filename: "upload.txt")
